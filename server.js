@@ -24,10 +24,23 @@ var server = http.createServer(function (request, response) {
   console.log('有个傻子发请求过来啦！路径（带查询参数）为：' + pathWithQuery)
 
   // 动态服务器
-
   if (path === '/register' && method === 'POST') {
     response.setHeader('Content-Type', "text/html;charset=utf-8")
-    response.end("很好")
+    // 声明一个数组塞数据 数据有可能是分段（数据块chunk）上传的 数据的大小未知
+    let array = []
+    // 发送请求时 监听
+    // 请求传来一个数据过来
+    request.on('data', (chunk) => {
+      array.push(chunk)
+    })
+    request.on('end', () => {
+      const string = Buffer.concat(array).toString()
+      console.log(string)
+      const obj = JSON.parse(string)
+      console.log('obj.name: ' + obj.name, 'obj.password:' + obj.password)
+      response.end("很好")
+
+    })
   } else {
     // 静态服务器
 
