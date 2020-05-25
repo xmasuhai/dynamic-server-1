@@ -26,10 +26,14 @@ var server = http.createServer(function (request, response) {
   // 动态服务器
   if (path === '/register' && method === 'POST') {
     response.setHeader('Content-Type', "text/html;charset=utf-8")
+
+    // 获取当前数据库中的数据
+    const userArray = JSON.parse(fs.readFileSync('./db/users.json'))
+
     // 声明一个数组塞数据 数据有可能是分段（数据块chunk）上传的 数据的大小未知
-    let array = []
+    const array = []
     // 发送请求时 监听
-    // 请求传来一个数据过来
+    // 请求传来一个数据过来 放入数组
     request.on('data', (chunk) => {
       array.push(chunk)
     })
@@ -38,8 +42,21 @@ var server = http.createServer(function (request, response) {
       console.log(string)
       const obj = JSON.parse(string)
       console.log('obj.name: ' + obj.name, 'obj.password:' + obj.password)
-      response.end("很好")
 
+      // id 为最后一个用户的id + 1
+      let lastUser = userArray[userArray.length - 1]
+      const newUser = {
+        id: lastUser ? lastUser.id + 1 : 1,
+        name: obj.name,
+        password: obj.password
+      }
+
+      // 更新数据
+      userArray.push(newUser)
+      // 将数据 转化为字符串覆盖写入数据库
+      fs.writeFileSync('./db/users.json', JSON.stringify(userArray))
+
+      response.end("很好")
     })
   } else {
     // 静态服务器
