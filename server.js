@@ -178,7 +178,8 @@ var server = http.createServer(function (request, response) {
       response.end("很好")
     })
   } else {
-    // 静态服务器
+
+    /* 静态服务器  */
     response.statusCode = 200
     // 设置默认首页
     const filePath = path === '/' ? '/index.html' : path
